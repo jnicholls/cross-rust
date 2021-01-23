@@ -14,5 +14,5 @@ docker:
 		--build-arg RUST_VERSION=$(RUST_VERSION) \
 		$(PROJ_DIR) < $(PROJ_DIR)/Dockerfile
 
-push: docker
+push:
 	$(DOCKER) push $(REGISTRY):$(RUST_VERSION) && $(DOCKER) push $(REGISTRY):latest

@@ -27,6 +27,16 @@ RUN rustup target add x86_64-apple-darwin x86_64-apple-ios aarch64-apple-ios
 RUN cargo install cargo-lipo
 
 # Setup tooling for cross-compiling Android.
+COPY android-ndk-r22-linux-x86_64.zip .
+RUN unzip android-ndk-r22-linux-x86_64.zip && rm android-ndk-r22-linux-x86_64.zip
+ENV ANDROID_NDK_HOME /android-ndk-r22
+ENV PATH ${PATH}:${ANDROID_NDK_HOME}
+RUN rustup target add \
+    aarch64-linux-android \
+    armv7-linux-androideabi \
+    i686-linux-android \
+    x86_64-linux-android
+RUN cargo install cargo-ndk
 
 # Setup the cargo config for our various targets.
 RUN printf "[target.x86_64-pc-windows-gnu]\nlinker = \"/usr/bin/x86_64-w64-mingw32-gcc\"\n" >> /usr/local/cargo/config
