@@ -30,7 +30,7 @@ RUN git clone https://github.com/tpoechtrager/osxcross \
     && tar xJf /osxcross/tarballs/iPhoneSimulator14.3.sdk.tar.xz \
     && rm -rf /osxcross/build /osxcross/tarballs/*
 ENV PATH ${PATH}:/osxcross/target/bin
-RUN rustup target add x86_64-apple-darwin x86_64-apple-ios aarch64-apple-ios
+RUN rustup target add aarch64-apple-darwin aarch64-apple-ios x86_64-apple-darwin x86_64-apple-ios
 RUN cargo install cargo-lipo
 
 # Setup tooling for cross-compiling Android.
@@ -49,6 +49,7 @@ RUN cargo install cargo-ndk
 
 # Setup the cargo config for our various targets.
 RUN printf "[target.x86_64-pc-windows-gnu]\nlinker = \"/usr/bin/x86_64-w64-mingw32-gcc\"\n" >> /usr/local/cargo/config
+RUN printf "[target.aarch64-apple-darwin]\nlinker = \"aarch64-apple-darwin20.2-clang\"\nar = \"aarch64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
+RUN printf "[target.aarch64-apple-ios]\nlinker = \"aarch64-apple-darwin20.2-clang\"\nar = \"aarch64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
 RUN printf "[target.x86_64-apple-darwin]\nlinker = \"x86_64-apple-darwin20.2-clang\"\nar = \"x86_64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
 RUN printf "[target.x86_64-apple-ios]\nlinker = \"x86_64-apple-darwin20.2-clang\"\nar = \"x86_64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
-RUN printf "[target.aarch64-apple-ios]\nlinker = \"aarch64-apple-darwin20.2-clang\"\nar = \"aarch64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
