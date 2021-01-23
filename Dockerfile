@@ -34,7 +34,7 @@ RUN rustup target add x86_64-apple-darwin x86_64-apple-ios aarch64-apple-ios
 RUN cargo install cargo-lipo
 
 # Setup tooling for cross-compiling Android.
-RUN curl -LO https://github.com/jnicholls/cross-rust/raw/main/android-ndk-r22-linux-x86_64.zip \
+RUN curl -LO https://dl.google.com/android/repository/android-ndk-r22-linux-x86_64.zip \
     && sha256sum -c /checksums/*.zip.sha256 \
     && unzip android-ndk-r22-linux-x86_64.zip \
     && rm android-ndk-r22-linux-x86_64.zip
