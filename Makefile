@@ -12,7 +12,8 @@ docker:
 		-t $(REGISTRY):$(RUST_VERSION) \
 		-t $(REGISTRY):latest \
 		--build-arg RUST_VERSION=$(RUST_VERSION) \
-		$(PROJ_DIR) < $(PROJ_DIR)/Dockerfile
+		-f $(PROJ_DIR)/Dockerfile \
+		$(PROJ_DIR)/checksums
 
 push:
 	$(DOCKER) push $(REGISTRY):$(RUST_VERSION) && $(DOCKER) push $(REGISTRY):latest
