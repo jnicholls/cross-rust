@@ -17,7 +17,8 @@ RUN rustup target add x86_64-pc-windows-gnu
 
 # Setup tooling for cross-compiling macOS and iOS.
 RUN apt-get update -y && apt-get install -y clang cmake libmpc-dev libmpfr-dev
-RUN git clone https://github.com/tpoechtrager/osxcross \
+RUN git clone https://github.com/jnicholls/osxcross \
+    && cd /osxcross && git checkout -b xcrun-ios origin/xcrun-ios \
     && cd /osxcross/tarballs \
     && curl -LO https://github.com/jnicholls/cross-rust/raw/main/MacOSX11.1.sdk.tar.xz \
     && curl -LO https://github.com/jnicholls/cross-rust/raw/main/iPhoneOS14.3.sdk.tar.xz \
@@ -38,6 +39,8 @@ RUN git clone https://github.com/tpoechtrager/osxcross \
     && mkdir /applecross/ioscross/x86_64/usr && ln -s /applecross/ioscross/x86_64/bin /applecross/ioscross/x86_64/usr/bin \
     && rm -rf /osxcross
 ENV PATH ${PATH}:/applecross/osxcross/bin:/applecross/ioscross/arm64/bin:/applecross/ioscross/x86_64/bin
+RUN printf "/applecross/osxcross/lib\n/applecross/ioscross/arm64\n/applecross/ioscross/x86_64\n" > /etc/ld.so.conf.d/applecross.conf \
+    && ldconfig
 RUN rustup target add aarch64-apple-darwin aarch64-apple-ios x86_64-apple-darwin x86_64-apple-ios
 RUN cargo install cargo-lipo
 
