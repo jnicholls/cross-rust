@@ -25,11 +25,19 @@ RUN git clone https://github.com/tpoechtrager/osxcross \
     && sha256sum -c /checksums/*.tar.xz.sha256 \
     && cd /osxcross \
     && UNATTENDED=1 ./build.sh \
-    && cd /osxcross/target/SDK \
-    && tar xJf /osxcross/tarballs/iPhoneOS14.3.sdk.tar.xz \
-    && tar xJf /osxcross/tarballs/iPhoneSimulator14.3.sdk.tar.xz \
-    && rm -rf /osxcross/build /osxcross/tarballs/*
-ENV PATH ${PATH}:/osxcross/target/bin
+    && mkdir -p /applecross/osxcross && mv /osxcross/target/* /applecross/osxcross \
+    && /osxcross/build/cctools-port/usage_examples/ios_toolchain/build.sh /osxcross/tarballs/iPhoneOS14.3.sdk.tar.xz arm64 \
+    && mkdir -p /applecross/ioscross/arm64 \
+    && mv /osxcross/build/cctools-port/usage_examples/ios_toolchain/target/* /applecross/ioscross/arm64 \
+    && mkdir /applecross/ioscross/arm64/usr && ln -s /applecross/ioscross/arm64/bin /applecross/ioscross/arm64/usr/bin \
+    && sed -i 's#^TRIPLE=.*#TRIPLE="x86_64-apple-darwin11"#' /osxcross/build/cctools-port/usage_examples/ios_toolchain/build.sh \
+    && sed -i 's#^WRAPPER_SDKDIR=.*#WRAPPER_SDKDIR=$(echo iPhoneSimulator*sdk | head -n1)#' /osxcross/build/cctools-port/usage_examples/ios_toolchain/build.sh \
+    && /osxcross/build/cctools-port/usage_examples/ios_toolchain/build.sh /osxcross/tarballs/iPhoneSimulator14.3.sdk.tar.xz x86_64 \
+    && mkdir -p /applecross/ioscross/x86_64 \
+    && mv /osxcross/build/cctools-port/usage_examples/ios_toolchain/target/* /applecross/ioscross/x86_64 \
+    && mkdir /applecross/ioscross/x86_64/usr && ln -s /applecross/ioscross/x86_64/bin /applecross/ioscross/x86_64/usr/bin \
+    && rm -rf /osxcross
+ENV PATH ${PATH}:/applecross/osxcross/bin:/applecross/ioscross/arm64/bin:/applecross/ioscross/x86_64/bin
 RUN rustup target add aarch64-apple-darwin aarch64-apple-ios x86_64-apple-darwin x86_64-apple-ios
 RUN cargo install cargo-lipo
 
@@ -50,9 +58,9 @@ RUN cargo install cargo-ndk
 # Setup the cargo config for our various targets.
 RUN printf "[target.x86_64-pc-windows-gnu]\nlinker = \"/usr/bin/x86_64-w64-mingw32-gcc\"\n" >> /usr/local/cargo/config
 RUN printf "[target.aarch64-apple-darwin]\nlinker = \"aarch64-apple-darwin20.2-clang\"\nar = \"aarch64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
-RUN printf "[target.aarch64-apple-ios]\nlinker = \"aarch64-apple-darwin20.2-clang\"\nar = \"aarch64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
+RUN printf "[target.aarch64-apple-ios]\nlinker = \"arm-apple-darwin11-clang\"\nar = \"arm-apple-darwin11-ar\"\n" >> /usr/local/cargo/config
 RUN printf "[target.x86_64-apple-darwin]\nlinker = \"x86_64-apple-darwin20.2-clang\"\nar = \"x86_64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
-RUN printf "[target.x86_64-apple-ios]\nlinker = \"x86_64-apple-darwin20.2-clang\"\nar = \"x86_64-apple-darwin20.2-ar\"\n" >> /usr/local/cargo/config
+RUN printf "[target.x86_64-apple-ios]\nlinker = \"x86_64-apple-darwin11-clang\"\nar = \"x86_64-apple-darwin11-ar\"\n" >> /usr/local/cargo/config
 
 # Install cbindgen so it can be used for projects involving generated bindings.
 RUN cargo install cbindgen
